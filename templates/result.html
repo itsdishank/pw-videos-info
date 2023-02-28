@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Video Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <div class="table-users">
+   <div class="header">Video Information</div>
+
+   <table cellspacing="0">
+      <tr>
+         <th>URL</th>
+         <th>Image URL</th>
+         <th>Title</th>
+         <th>Views</th>
+         <th>Uploaded on</th>
+      </tr>
+         {% for review in my_dict_list %}
+      <tr>
+          <td>{{review['URL']}}</td>
+         <td>{{review['Image URL']}}</td>
+         <td>{{review['Video Title']}}</td>
+         <td>{{review['Views']}}</td>
+         <td>{{review['time']}} </td>
+       {% endfor %}
+   </table>
+</div>
+
+
+
+</body>
+
+</html>
