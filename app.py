@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask_cors import CORS, cross_origin
 import re
 import csv
 from bs4 import BeautifulSoup
@@ -8,6 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 app = Flask(__name__)
 
 @app.route("/", methods = ['GET'])
+@cross_origin
 def homepage():
     driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
 
