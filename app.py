@@ -12,79 +12,88 @@ def homepage():
     driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
 
     driver.get("https://www.youtube.com/@PW-Foundation/videos")
+    driver.execute_script("window.scrollBy(0, 10000);")
 
     yt_html = driver.page_source
 
     yt_soup = BeautifulSoup(yt_html,"html.parser")
 
-    video_urls = yt_soup.find_all('a',{"class":"yt-simple-endpoint inline-block style-scope ytd-thumbnail"})
+    try:
 
-    urls_list = []
+        video_urls = yt_soup.find_all('a',{"class":"yt-simple-endpoint inline-block style-scope ytd-thumbnail"})
 
-    for i in video_urls[1:6]:
-        urls_list.append("https://www.youtube.com"+i['href'])
+        urls_list = []
 
-    thumbnail_url = yt_soup.find_all('img',{'class':"yt-core-image--fill-parent-height yt-core-image--fill-parent-width yt-core-image yt-core-image--content-mode-scale-aspect-fill yt-core-image--loaded"})
+        for i in video_urls[1:6]:
+            urls_list.append("https://www.youtube.com"+i['href'])
 
-    image_urls_list = []
+        thumbnail_url = yt_soup.find_all('img',{'class':"yt-core-image--fill-parent-height yt-core-image--fill-parent-width yt-core-image yt-core-image--content-mode-scale-aspect-fill yt-core-image--loaded"})
 
-    for image_url in thumbnail_url[0:5]:
-        image_urls_list.append(image_url['src'])
+        image_urls_list = []
 
-    video_titles = yt_soup.find_all('a',{'class':'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media'})
+        for image_url in thumbnail_url[0:5]:
+            image_urls_list.append(image_url['src'])
 
-    video_title_list = []
+        video_titles = yt_soup.find_all('a',{'class':'yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-media'})
 
-    for video_title in (video_titles[0:5]):
-        video_title_list.append(video_title.text)
+        video_title_list = []
 
-    video_views = yt_soup.find_all('span',{'class':'inline-metadata-item style-scope ytd-video-meta-block'})
+        for video_title in (video_titles[0:5]):
+            video_title_list.append(video_title.text)
 
-    count = 0
-    video_views_list = []
+        video_views = yt_soup.find_all('span',{'class':'inline-metadata-item style-scope ytd-video-meta-block'})
 
-    for views in video_views:
-        if count >=5:
-            break
-        else:
-            if re.search("^[0-9].*views$",views.text):
-                video_views_list.append(views.text)
-                count+=1
+        count = 0
+        video_views_list = []
 
-    uploaded_time = yt_soup.find_all('span',{'class':'inline-metadata-item style-scope ytd-video-meta-block'})
+        for views in video_views:
+            if count >=5:
+                break
+            else:
+                if re.search("^[0-9].*views$",views.text):
+                    video_views_list.append(views.text)
+                    count+=1
 
-    count = 0
-    uploaded_time_list = []
+        uploaded_time = yt_soup.find_all('span',{'class':'inline-metadata-item style-scope ytd-video-meta-block'})
 
-    for time in uploaded_time:
-        if count >=5:
-            break
-        else:
-            if re.search("[0-9].*ago$",time.text):
-                uploaded_time_list.append(time.text)
-                count+=1
+        count = 0
+        uploaded_time_list = []
 
-    # sample dictionary with keys as column names and values as lists
-    my_dict = {'URL': urls_list,
-            'Image URL': image_urls_list,
-            'Video Title': video_title_list,
-            'Views': video_views_list,
-            'time': uploaded_time_list
-            }
-    my_dict_list = []
+        for time in uploaded_time:
+            if count >=5:
+                break
+            else:
+                if re.search("[0-9].*ago$",time.text):
+                    uploaded_time_list.append(time.text)
+                    count+=1
 
-    # open a new CSV file for writing with DictWriter
-    with open('pw videos info/my_file.csv', 'w', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=my_dict.keys())
+        # sample dictionary with keys as column names and values as lists
+        my_dict = {'URL': urls_list,
+                'Image URL': image_urls_list,
+                'Video Title': video_title_list,
+                'Views': video_views_list,
+                'time': uploaded_time_list
+                }
+        my_dict_list = []
 
-        # write the header row with the column names
-        writer.writeheader()
+        # open a new CSV file for writing with DictWriter
+        with open('pw videos info/my_file.csv', 'w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=my_dict.keys())
 
-        # write the data rows with values from the dictionary
-        for i in range(len(my_dict['URL'])):
-            row_data = {key: my_dict[key][i] for key in my_dict.keys()}
-            my_dict_list.append(row_data)
-            writer.writerow(row_data)
+            # write the header row with the column names
+            writer.writeheader()
+
+            # write the data rows with values from the dictionary
+            for i in range(len(my_dict['URL'])):
+                try:
+                    row_data = {key: my_dict[key][i] for key in my_dict.keys()}
+                except:
+                    print('Exception Occured')
+                else:
+                    my_dict_list.append(row_data)
+                    writer.writerow(row_data)
+    except:
+        print("Cannot find in list")
 
     return render_template('result.html', my_dict_list=my_dict_list)
 
